@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PPE Detection - Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav-bar{
+            background-color:black;
+            color:white;
+            height:60px;
+            padding:10px;
+            text-align:right;
+            margin: -20px -20px 20px -20px;
+        }
+        .nav-bar ul{
+            list-style:none;
+            padding:0px;
+        }
+        .nav-bar li{
+            display:inline-block;
+            background-color:gray;
+            border-radius:10px;
+            padding:10px;
+            margin:10px;
+        }
+        .nav-bar li:hover{
+            background-color:red;
+        }
+        .nav-bar a{
+            color:white;
+            text-decoration:none;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .result-area {
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <nav>
+            <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/FrontPage">Video/Image</a></li>
+            <li><a href="/image_upload">Image Upload</a></li>
+            <li><a href="/webcam">LiveWebcam</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <h1>PPE Detection - Image Upload</h1>
+    
+    <div class="upload-area">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageFile" name="file" accept="image/*" required>
+            <br><br>
+            <button type="submit" class="button">Detect PPE</button>
+        </form>
+    </div>
+    
+    <div id="loading" style="display: none;">
+        <p>Processing image... Please wait.</p>
+    </div>
+    
+    <div id="results" class="result-area" style="display: none;">
+        <h3>Detection Results:</h3>
+        <div>
+            <h4>Original Image:</h4>
+            <img id="originalImage" alt="Original Image">
+        </div>
+        <div>
+            <h4>Detected Image:</h4>
+            <img id="detectedImage" alt="Detected Image">
+        </div>
+    </div>
+    
+    <div id="error" style="display: none; color: red;">
+        <p id="errorMessage"></p>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            formData.append('file', file);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            fetch('/detect_image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('originalImage').src = data.original_image;
+                    document.getElementById('detectedImage').src = data.detected_image;
+                    document.getElementById('results').style.display = 'block';
+                } else {
+                    document.getElementById('errorMessage').textContent = data.error || 'Unknown error occurred';
+                    document.getElementById('error').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
+                document.getElementById('error').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
