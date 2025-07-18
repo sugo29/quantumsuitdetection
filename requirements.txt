@@ -1,5 +1,5 @@
 cvzone
-ultralytics==8.0.26
+ultralytics
 hydra-core
 matplotlib
 numpy
@@ -17,3 +17,4 @@ lap
 flask_wtf
 WTForms
 Flask-WTF
+gunicorn
