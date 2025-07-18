@@ -1,5 +1,5 @@
 cvzone
-ultralytics==8.0.26
+ultralytics
 hydra-core
 matplotlib
 numpy
